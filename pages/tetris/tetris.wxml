@@ -9,28 +9,26 @@
 
   <!-- 控制区域 -->
   <view class="control-area">
-    <!-- 左侧方向控制 -->
-    <view class="direction-pad">
-      <view class="d-pad-row">
-        <view class="d-pad-btn" bindtap="onMoveLeft">
-          <text class="iconfont">←</text>
-        </view>
-        <view class="d-pad-btn" bindtap="onMoveRight">
-          <text class="iconfont">→</text>
-        </view>
+    <!-- 左侧控制 -->
+    <view class="left-controls">
+      <view class="d-pad-btn" bindtap="onMoveLeft">
+        <text class="iconfont bold">←</text>
+      </view>
+      <view class="action-btn drop-btn" bindtap="onHardDrop">
+        <text class="iconfont bold">⇓</text>
+      </view>
+      <view class="d-pad-btn" bindtap="onMoveRight">
+        <text class="iconfont bold">→</text>
       </view>
     </view>
 
     <!-- 右侧功能按钮 -->
-    <view class="action-buttons">
+    <view class="right-controls">
       <view class="action-btn rotate-btn" bindtap="onRotate">
         <text class="iconfont bold">⟳</text>
       </view>
       <view class="action-btn down-btn" bindtap="onMoveDown">
         <text class="iconfont">↓</text>
-      </view>
-      <view class="action-btn drop-btn" bindtap="onHardDrop">
-        <text class="iconfont">⤓</text>
       </view>
       <view class="action-btn pause-btn" bindtap="onPause">
         <text class="iconfont">❚❚</text>

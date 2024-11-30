@@ -40,24 +40,13 @@
   box-shadow: 0 -4rpx 10rpx rgba(0,0,0,0.05);
 }
 
-/* 方向控制 */
-.direction-pad {
+/* 左右控制区 */
+.left-controls, .right-controls {
   display: flex;
   gap: 20rpx;
 }
 
-.d-pad-row {
-  display: flex;
-  gap: 20rpx;
-}
-
-/* 功能按钮 */
-.action-buttons {
-  display: flex;
-  gap: 20rpx;
-}
-
-/* 按钮样式 */
+/* 按钮基础样式 */
 .d-pad-btn, .action-btn {
   width: 100rpx;
   height: 100rpx;
@@ -72,58 +61,41 @@
 
 .d-pad-btn:active, .action-btn:active {
   transform: scale(0.95);
-  background: #e8e8e8;
-}
-
-/* 功能按钮样式 */
-.rotate-btn {
-  background: #9b59b6 !important;
-  color: white;
-}
-
-.down-btn {
-  background: #3498db !important;
-  color: white;
-}
-
-.drop-btn {
-  background: #e74c3c !important;
-  color: white;
-}
-
-.pause-btn {
-  background: #95a5a6 !important;
-  color: white;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.1);
 }
 
 /* 方向按钮样式 */
 .d-pad-btn {
   background: #3498db !important;
-  color: white;
 }
 
-.d-pad-btn .iconfont {
-  font-size: 56rpx;
-  font-weight: bold;
-  color: white;
+/* 功能按钮样式 */
+.rotate-btn {
+  background: #9b59b6 !important;
+}
+
+.down-btn {
+  background: #2ecc71 !important;
+}
+
+.drop-btn {
+  background: #e74c3c !important;
+}
+
+.pause-btn {
+  background: #95a5a6 !important;
 }
 
 /* 图标样式 */
 .iconfont {
   font-size: 48rpx;
-  color: #666666;
+  color: white;
 }
 
-.iconfont.bold {
+/* 硬降按钮的特殊样式 */
+.drop-btn .iconfont {
   font-size: 56rpx;
   font-weight: bold;
-}
-
-.rotate-btn .iconfont,
-.down-btn .iconfont,
-.drop-btn .iconfont,
-.pause-btn .iconfont {
-  color: white;
 }
 
 /* 模态框样式 */
@@ -178,23 +150,4 @@
 
 .modal-btn.primary:active {
   background: #357abd;
-}
-
-/* 旋转按钮的双箭头样式 */
-.rotate-arrows {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.arrow-top {
-  font-size: 36rpx;
-  margin-bottom: -10rpx;
-}
-
-.arrow-bottom {
-  font-size: 36rpx;
-  margin-top: -10rpx;
 } 
