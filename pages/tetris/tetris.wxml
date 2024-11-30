@@ -1,63 +1,57 @@
-<view class="game-container">
+<view class="container">
   <!-- 游戏主区域 -->
-  <view class="game-area">
-    <!-- 游戏主画布 -->
+  <view class="game-area" 
+        bindtouchstart="onTouchStart"
+        bindtouchmove="onTouchMove"
+        bindtouchend="onTouchEnd">
     <canvas type="2d" id="gameCanvas" class="game-canvas"></canvas>
-    
-    <!-- 侧边栏 -->
-    <view class="sidebar">
-      <!-- 预览区域 -->
-      <view class="preview-area">
-        <text class="preview-title">下一个</text>
-        <canvas type="2d" id="previewCanvas" class="preview-canvas"></canvas>
-      </view>
-      
-      <!-- 分数区域 -->
-      <view class="score-area">
-        <view class="score-item">
-          <text>分数</text>
-          <text class="score-value">{{score}}</text>
-        </view>
-        <view class="score-item">
-          <text>等级</text>
-          <text class="score-value">{{level}}</text>
-        </view>
-        <view class="score-item">
-          <text>行数</text>
-          <text class="score-value">{{lines}}</text>
-        </view>
-        <view class="score-item">
-          <text>连击</text>
-          <text class="score-value">{{combo}}</text>
-        </view>
-      </view>
-    </view>
   </view>
-  
+
   <!-- 控制区域 -->
   <view class="control-area">
-    <view class="control-row">
-      <view class="control-btn" bindtap="onRotate">↻</view>
-      <view class="control-btn" bindtap="onPause">⏸</view>
+    <!-- 左侧方向控制 -->
+    <view class="direction-pad">
+      <view class="d-pad-row">
+        <view class="d-pad-btn" bindtap="onMoveLeft">
+          <text class="iconfont">←</text>
+        </view>
+        <view class="d-pad-btn" bindtap="onMoveRight">
+          <text class="iconfont">→</text>
+        </view>
+      </view>
     </view>
-    <view class="control-row">
-      <view class="control-btn" bindtap="onMoveLeft">←</view>
-      <view class="control-btn" bindtap="onMoveDown">↓</view>
-      <view class="control-btn" bindtap="onMoveRight">→</view>
+
+    <!-- 右侧功能按钮 -->
+    <view class="action-buttons">
+      <view class="action-btn rotate-btn" bindtap="onRotate">
+        <text class="iconfont bold">⟳</text>
+      </view>
+      <view class="action-btn down-btn" bindtap="onMoveDown">
+        <text class="iconfont">↓</text>
+      </view>
+      <view class="action-btn drop-btn" bindtap="onHardDrop">
+        <text class="iconfont">⤓</text>
+      </view>
+      <view class="action-btn pause-btn" bindtap="onPause">
+        <text class="iconfont">❚❚</text>
+      </view>
     </view>
   </view>
 </view>
 
 <!-- 游戏结束遮罩 -->
-<view class="game-over" wx:if="{{isGameOver}}">
-  <text class="game-over-title">游戏结束</text>
-  <text class="game-over-score">得分: {{score}}</text>
-  <view class="game-over-btn" bindtap="onRestart">重新开始</view>
+<view class="modal game-over" wx:if="{{isGameOver}}">
+  <view class="modal-content">
+    <text class="modal-title">游戏结束</text>
+    <view class="modal-btn primary" bindtap="onRestart">再来一局</view>
+  </view>
 </view>
 
 <!-- 暂停菜单 -->
-<view class="pause-menu" wx:if="{{isPaused}}">
-  <text class="menu-title">游戏暂停</text>
-  <view class="menu-btn" bindtap="onResume">继续游戏</view>
-  <view class="menu-btn" bindtap="onRestart">重新开始</view>
+<view class="modal pause-menu" wx:if="{{isPaused}}">
+  <view class="modal-content">
+    <text class="modal-title">游戏暂停</text>
+    <view class="modal-btn" bindtap="onResume">继续游戏</view>
+    <view class="modal-btn" bindtap="onRestart">重新开始</view>
+  </view>
 </view> 

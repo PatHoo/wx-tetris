@@ -1,17 +1,28 @@
 import { GAME_CONFIG, BLOCK_TYPES } from '../config/gameConfig';
 
 class GameHelper {
+  static blockBag = [];
+
   // 生成新方块
   static generateBlock() {
-    const types = Object.keys(BLOCK_TYPES);
-    const type = types[Math.floor(Math.random() * types.length)];
+    // 如果方块袋为空，重新填充
+    if (this.blockBag.length === 0) {
+      this.blockBag = Object.keys(BLOCK_TYPES);
+      // Fisher-Yates 洗牌算法
+      for (let i = this.blockBag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.blockBag[i], this.blockBag[j]] = [this.blockBag[j], this.blockBag[i]];
+      }
+    }
+
+    // 从方块袋中取出一个方块类型
+    const type = this.blockBag.pop();
     const blockData = BLOCK_TYPES[type];
     
     return {
       type,
       shape: blockData.shape.map(row => [...row]),
-      color: blockData.color,
-      x: 3,
+      x: Math.floor((GAME_CONFIG.GRID.COLS - blockData.shape[0].length) / 2),
       y: 0
     };
   }

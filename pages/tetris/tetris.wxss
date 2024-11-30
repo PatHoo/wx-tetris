@@ -1,360 +1,200 @@
-/* 游戏容器 */
-.game-container {
+/* 主容器 */
+.container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 100%;
   height: 100vh;
-  background-color: var(--background-color, #F8F9FA);
+  background: #f5f5f5;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 /* 游戏主区域 */
 .game-area {
-  display: flex;
-  justify-content: space-between;
+  flex: 1;
   width: 100%;
-  padding: 20rpx;
-  box-sizing: border-box;
-}
-
-/* 游戏主画布 */
-.game-canvas {
-  width: 400rpx;
-  height: 800rpx;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 12rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-}
-
-/* 侧边栏 */
-.sidebar {
   display: flex;
-  flex-direction: column;
-  width: 240rpx;
-  margin-left: 20rpx;
-}
-
-/* 预览区域 */
-.preview-area {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 12rpx;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.preview-title {
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 10rpx;
-}
-
-.preview-canvas {
-  width: 200rpx;
-  height: 300rpx;
-}
-
-/* Hold区域 */
-.hold-area {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 12rpx;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.hold-canvas {
-  width: 200rpx;
-  height: 100rpx;
-}
-
-/* 分数区域 */
-.score-area {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 12rpx;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.score-item {
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 10rpx;
-  font-size: 28rpx;
-  color: #666;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: inset 0 0 10rpx rgba(0,0,0,0.1);
 }
 
-.score-value {
-  font-weight: bold;
-  color: #333;
+.game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* 控制区域 */
 .control-area {
   width: 100%;
+  min-height: 140rpx;
   padding: 20rpx;
-  box-sizing: border-box;
-  margin-top: auto;
-}
-
-.control-row {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 20rpx;
-}
-
-.control-btn {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 48rpx;
-  color: #666;
-  transition: all 0.2s ease;
-}
-
-.control-btn:active {
-  background-color: rgba(0, 0, 0, 0.2);
-  transform: scale(0.95);
-}
-
-/* 游戏结束遮罩 */
-.game-over {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.game-over-title {
-  font-size: 60rpx;
-  color: #fff;
-  margin-bottom: 40rpx;
-}
-
-.game-over-score {
-  font-size: 48rpx;
-  color: #fff;
-  margin-bottom: 60rpx;
-}
-
-.game-over-btn {
-  width: 300rpx;
-  height: 80rpx;
-  border-radius: 40rpx;
-  background-color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 32rpx;
-  color: #333;
-  margin-bottom: 20rpx;
-  transition: all 0.2s ease;
-}
-
-.game-over-btn:active {
-  transform: scale(0.95);
-  opacity: 0.9;
-}
-
-/* 暂停菜单 */
-.pause-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.menu-title {
-  font-size: 48rpx;
-  color: #fff;
-  margin-bottom: 60rpx;
-}
-
-.menu-btn {
-  width: 300rpx;
-  height: 80rpx;
-  border-radius: 40rpx;
-  background-color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 32rpx;
-  color: #333;
-  margin-bottom: 20rpx;
-  transition: all 0.2s ease;
-}
-
-.menu-btn:active {
-  transform: scale(0.95);
-  opacity: 0.9;
-}
-
-/* 设置面板 */
-.settings-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600rpx;
-  background-color: #fff;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
-  z-index: 200;
-}
-
-.settings-title {
-  font-size: 36rpx;
-  color: #333;
-  text-align: center;
-  margin-bottom: 40rpx;
-}
-
-.settings-item {
+  background: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30rpx;
-  font-size: 28rpx;
-  color: #666;
+  box-shadow: 0 -4rpx 10rpx rgba(0,0,0,0.05);
 }
 
-.settings-btn {
-  width: 200rpx;
-  height: 80rpx;
-  border-radius: 40rpx;
-  background-color: #2ED573;
-  color: #fff;
+/* 方向控制 */
+.direction-pad {
+  display: flex;
+  gap: 20rpx;
+}
+
+.d-pad-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+/* 功能按钮 */
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+/* 按钮样式 */
+.d-pad-btn, .action-btn {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50rpx;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 32rpx;
-  margin: 40rpx auto 0;
-  transition: all 0.2s ease;
+  background: #f0f0f0;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+  transition: all 0.2s;
 }
 
-.settings-btn:active {
+.d-pad-btn:active, .action-btn:active {
   transform: scale(0.95);
-  opacity: 0.9;
+  background: #e8e8e8;
 }
 
-/* 动画效果 */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* 功能按钮样式 */
+.rotate-btn {
+  background: #9b59b6 !important;
+  color: white;
 }
 
-@keyframes slideIn {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+.down-btn {
+  background: #3498db !important;
+  color: white;
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+.drop-btn {
+  background: #e74c3c !important;
+  color: white;
 }
 
-.slide-in {
-  animation: slideIn 0.3s ease-out;
+.pause-btn {
+  background: #95a5a6 !important;
+  color: white;
 }
 
-/* 成就提示 */
-.achievement-popup {
-  position: fixed;
-  top: 100rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  border-radius: 16rpx;
-  padding: 20rpx 40rpx;
-  display: flex;
-  align-items: center;
-  z-index: 300;
+/* 方向按钮样式 */
+.d-pad-btn {
+  background: #3498db !important;
+  color: white;
 }
 
-.achievement-icon {
-  font-size: 48rpx;
-  margin-right: 20rpx;
-}
-
-.achievement-content {
-  color: #fff;
-}
-
-.achievement-title {
-  font-size: 32rpx;
+.d-pad-btn .iconfont {
+  font-size: 56rpx;
   font-weight: bold;
-  margin-bottom: 8rpx;
+  color: white;
 }
 
-.achievement-desc {
-  font-size: 24rpx;
-  opacity: 0.8;
+/* 图标样式 */
+.iconfont {
+  font-size: 48rpx;
+  color: #666666;
 }
 
-.achievement-points {
-  font-size: 28rpx;
-  color: #FFD700;
-  margin-left: 20rpx;
+.iconfont.bold {
+  font-size: 56rpx;
+  font-weight: bold;
 }
 
-/* 新纪录提示 */
-.new-record-popup {
+.rotate-btn .iconfont,
+.down-btn .iconfont,
+.drop-btn .iconfont,
+.pause-btn .iconfont {
+  color: white;
+}
+
+/* 模态框样式 */
+.modal {
   position: fixed;
-  top: 100rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #FFD700;
-  border-radius: 16rpx;
-  padding: 20rpx 40rpx;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 40rpx;
+  border-radius: 20rpx;
+  width: 80%;
+  max-width: 600rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.1);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30rpx;
+  color: #333333;
+}
+
+.modal-btn {
+  margin: 20rpx 0;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  text-align: center;
+  background: #f5f5f5;
+  color: #333333;
+  transition: all 0.2s;
+}
+
+.modal-btn:active {
+  background: #e8e8e8;
+}
+
+.modal-btn.primary {
+  background: #4a90e2;
+  color: #ffffff;
+}
+
+.modal-btn.primary:active {
+  background: #357abd;
+}
+
+/* 旋转按钮的双箭头样式 */
+.rotate-arrows {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 300;
+  justify-content: center;
+  line-height: 1;
 }
 
-.new-record-title {
-  font-size: 32rpx;
-  color: #fff;
-  font-weight: bold;
-  margin-bottom: 8rpx;
+.arrow-top {
+  font-size: 36rpx;
+  margin-bottom: -10rpx;
 }
 
-.new-record-rank {
-  font-size: 28rpx;
-  color: #fff;
-  opacity: 0.9;
-}
-
-/* 响应式布局 */
-@media screen and (min-width: 768px) {
-  .game-container {
-    max-width: 1200rpx;
-    margin: 0 auto;
-  }
-  
-  .game-canvas {
-    width: 600rpx;
-    height: 1200rpx;
-  }
-  
-  .sidebar {
-    width: 300rpx;
-  }
+.arrow-bottom {
+  font-size: 36rpx;
+  margin-top: -10rpx;
 } 

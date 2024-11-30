@@ -9,13 +9,13 @@ export const GAME_CONFIG = {
 
   // 方块配置
   BLOCKS: {
-    I: { color: '#00A8FF', shape: [[1,1,1,1]], center: [0.5, 0.5] },
-    O: { color: '#FFC048', shape: [[1,1],[1,1]], center: [0.5, 0.5] },
-    T: { color: '#9C88FF', shape: [[0,1,0],[1,1,1]], center: [1, 1] },
-    L: { color: '#FF9F43', shape: [[1,0],[1,0],[1,1]], center: [1, 1] },
-    J: { color: '#5352ED', shape: [[0,1],[0,1],[1,1]], center: [1, 1] },
-    S: { color: '#2ED573', shape: [[0,1,1],[1,1,0]], center: [1, 1] },
-    Z: { color: '#FF6B81', shape: [[1,1,0],[0,1,1]], center: [1, 1] }
+    I: { color: '#00f0f0', shape: [[1,1,1,1]], center: [0.5, 0.5] },
+    O: { color: '#f0f000', shape: [[1,1],[1,1]], center: [0.5, 0.5] },
+    T: { color: '#a000f0', shape: [[0,1,0],[1,1,1]], center: [1, 1] },
+    L: { color: '#f0a000', shape: [[0,0,1],[1,1,1]], center: [1, 1] },
+    J: { color: '#0000f0', shape: [[1,0,0],[1,1,1]], center: [1, 1] },
+    S: { color: '#00f000', shape: [[0,1,1],[1,1,0]], center: [1, 1] },
+    Z: { color: '#f00000', shape: [[1,1,0],[0,1,1]], center: [1, 1] }
   },
 
   // 游戏速度配置
@@ -96,46 +96,7 @@ export const GAME_CONFIG = {
   }
 };
 
-// 方块类型定义
-export const TETROMINOES = {
-  I: {
-    shape: [[1,1,1,1]],
-    color: '#00f0f0', // 青色
-    center: [0.5, 0.5]
-  },
-  O: {
-    shape: [[1,1],[1,1]],
-    color: '#f0f000', // 黄色
-    center: [0.5, 0.5]
-  },
-  T: {
-    shape: [[0,1,0],[1,1,1]],
-    color: '#a000f0', // 紫色
-    center: [1, 1]
-  },
-  L: {
-    shape: [[0,0,1],[1,1,1]],
-    color: '#f0a000', // 橙色
-    center: [1, 1]
-  },
-  J: {
-    shape: [[1,0,0],[1,1,1]],
-    color: '#0000f0', // 蓝色
-    center: [1, 1]
-  },
-  S: {
-    shape: [[0,1,1],[1,1,0]],
-    color: '#00f000', // 绿色
-    center: [1, 1]
-  },
-  Z: {
-    shape: [[1,1,0],[0,1,1]],
-    color: '#f00000', // 红色
-    center: [1, 1]
-  }
-};
-
-// 导出BLOCK_TYPES作为TETROMINOES的别名
-export const BLOCK_TYPES = TETROMINOES;
+// 导出BLOCK_TYPES作为BLOCKS的别名
+export const BLOCK_TYPES = GAME_CONFIG.BLOCKS;
 
 // 导出其他配置... 

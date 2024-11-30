@@ -3,8 +3,8 @@
     "pages/tetris/tetris"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F8F9FA",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "俄罗斯方块",
     "navigationBarTextStyle": "black"
   },
