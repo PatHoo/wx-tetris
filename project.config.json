@@ -1,4 +1,12 @@
 {
+  "description": "俄罗斯方块小游戏",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "miniprogramRoot": "",
+  "compileType": "miniprogram",
+  "projectname": "tetris",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -8,7 +16,7 @@
     "minified": true,
     "newFeature": true,
     "coverView": true,
-    "nodeModules": true,
+    "nodeModules": false,
     "autoAudits": false,
     "showShadowRootInWxmlPanel": true,
     "scopeDataCheck": false,
@@ -17,6 +25,7 @@
     "checkSiteMap": true,
     "uploadWithSourceMap": true,
     "compileHotReLoad": false,
+    "lazyloadPlaceholderEnable": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
     "useApiHostProcess": true,
@@ -24,29 +33,14 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    },
-    "enableEngineNative": false,
-    "bundle": false,
-    "useIsolateContext": true,
-    "useCompilerModule": true,
-    "userConfirmedUseCompilerModuleSwitch": false,
-    "userConfirmedBundleSwitch": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true
+    }
   },
-  "appid": "wxc06bcb7701943e23",
-  "projectname": "tetris",
-  "libVersion": "2.14.1",
   "condition": {},
-  "compileType": "miniprogram",
-  "srcMiniprogramRoot": "",
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
-  }
+  },
+  "libVersion": "3.0.0",
+  "srcMiniprogramRoot": "",
+  "appid": "wxc06bcb7701943e23"
 }
