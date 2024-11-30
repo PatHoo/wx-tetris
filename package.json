@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "generate-resources": "node scripts/svg2png.js && node scripts/generate-audio.js"
+  },
+  "dependencies": {
+    "sharp": "^0.32.1",
+    "web-audio-api": "^0.2.2"
+  }
+} 

@@ -1,0 +1,667 @@
+<view class="container">
+  <!-- 顶部状态栏 -->
+  <view class="status-bar">
+    <view class="score-container">
+      <view class="score">
+        <text class="label">分数</text>
+        <text class="value {{score > highScore ? 'new-record' : ''}}">{{score}}</text>
+      </view>
+      <view class="high-score">
+        <text class="label">最高分</text>
+        <text class="value">{{highScore}}</text>
+      </view>
+    </view>
+    
+    <view class="control-buttons">
+      <view class="control-btn icon-btn ripple hover-effect" bindtap="toggleSound">
+        <text class="{{isMuted ? 'icon-mute' : 'icon-sound'}}"></text>
+      </view>
+      <view class="control-btn icon-btn ripple hover-effect" bindtap="{{isPaused ? 'resumeGame' : 'pauseGame'}}">
+        <text class="{{isPaused ? 'icon-play' : 'icon-pause'}}"></text>
+      </view>
+      <view class="control-btn icon-btn ripple hover-effect" bindtap="showThemeSelector">
+        <text class="icon-theme">🎨</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 游戏主区域 -->
+  <view class="game-area {{isPaused ? 'pause-blur' : ''}}">
+    <view class="game-container">
+      <view class="game-board {{gameMode === 'mirror' ? 'mirror' : ''}} {{theme}}">
+        <!-- 游戏画布 -->
+        <canvas 
+          type="2d"
+          id="gameCanvas"
+          canvas-id="gameCanvas"
+          class="main-canvas game-border grid-animation"
+          bindtouchstart="handleTouchStart"
+          bindtouchmove="handleTouchMove"
+          bindtouchend="handleTouchEnd">
+        </canvas>
+        
+        <!-- 游戏特效层 -->
+        <view class="effects-layer">
+          <view class="scan-line" wx:if="{{theme === 'neon'}}"></view>
+          <view class="particles" wx:if="{{showParticles}}"></view>
+          <view class="level-beam" wx:if="{{showLevelBeam}}"></view>
+          <view class="perfect-clear" wx:if="{{showPerfectClear}}"></view>
+          <view class="t-spin" wx:if="{{showTSpin}}"></view>
+          <view class="rainbow-clear" wx:if="{{showRainbowClear}}"></view>
+          <view class="game-over-glow" wx:if="{{isGameOver}}"></view>
+        </view>
+      </view>
+      
+      <!-- 预览区域 -->
+      <view class="preview-area preview-glow">
+        <text class="preview-title">下一个</text>
+        <canvas 
+          type="2d"
+          id="previewCanvas"
+          canvas-id="previewCanvas"
+          class="preview-canvas">
+        </canvas>
+      </view>
+    </view>
+  </view>
+
+  <!-- 控制区域 -->
+  <view class="control-area">
+    <view class="control-row">
+      <button class="control-btn ripple btn-press" bindtap="rotate">旋转</button>
+    </view>
+    <view class="control-row">
+      <button class="control-btn ripple btn-press" bindtap="moveLeft">左移</button>
+      <button class="control-btn ripple btn-press" bindtap="moveDown">下移</button>
+      <button class="control-btn ripple btn-press" bindtap="moveRight">右移</button>
+    </view>
+  </view>
+
+  <!-- 游戏结束弹窗 -->
+  <view class="game-over-modal modal-transition {{isGameOver ? 'show' : ''}}" wx:if="{{isGameOver}}">
+    <view class="modal-content">
+      <text class="game-over-title neon-text">游戏结束</text>
+      <text class="final-score">最终得分：{{score}}</text>
+      
+      <!-- 游戏统计 -->
+      <view class="game-stats">
+        <text class="stats-header">游戏统计</text>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <text class="stat-label">消除行数</text>
+            <text class="stat-value">{{statistics.totalLines}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-label">放置方块</text>
+            <text class="stat-value">{{statistics.totalPieces}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-label">最大连击</text>
+            <text class="stat-value">{{statistics.maxCombo}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-label">游戏时长</text>
+            <text class="stat-value">{{formatTime(statistics.playTime)}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 分享面板 -->
+      <view class="share-panel">
+        <text class="share-title">分享成绩</text>
+        <view class="share-options">
+          <button class="share-btn wechat ripple" open-type="share">分享给好友</button>
+          <button class="share-btn moments ripple" bindtap="shareToMoments">分享到朋友圈</button>
+        </view>
+      </view>
+      
+      <button class="restart-btn gradient-primary ripple" bindtap="restartGame">重新开始</button>
+    </view>
+  </view>
+
+  <!-- 暂停遮罩 -->
+  <view class="pause-mask {{isPaused && !isGameOver ? 'show' : ''}}">
+    <view class="pause-content glass">
+      <text class="pause-title">游戏暂停</text>
+      <button class="resume-btn ripple" bindtap="resumeGame">继续游戏</button>
+    </view>
+  </view>
+
+  <!-- 分数弹出动画 -->
+  <view class="score-popup {{scorePopup.visible ? 'show' : ''}}" 
+        style="left: {{scorePopup.x}}px; top: {{scorePopup.y}}px;"
+        wx:if="{{scorePopup.visible}}">
+    +{{scorePopup.score}}
+  </view>
+
+  <!-- 等级提升特效 -->
+  <view class="level-up-effect {{levelUpEffect.visible ? 'show' : ''}}" wx:if="{{levelUpEffect.visible}}">
+    <view class="level-up-content">
+      <text class="level-up-title neon-text">等级提升!</text>
+      <text class="new-level">Level {{levelUpEffect.level}}</text>
+      <text class="speed-up">速度提升!</text>
+    </view>
+  </view>
+
+  <!-- 连击提示 -->
+  <view class="combo-effect {{comboEffect.visible ? 'show' : ''}}" wx:if="{{comboEffect.visible}}">
+    <text class="combo-text">{{comboEffect.combo}} COMBO!</text>
+  </view>
+
+  <!-- 游戏模式选择器 -->
+  <view class="mode-selector modal-transition {{showModeSelector ? 'show' : ''}}" wx:if="{{showModeSelector}}">
+    <view class="mode-content">
+      <text class="mode-title">选择游戏模式</text>
+      <view class="mode-grid">
+        <view class="mode-card hover-effect" 
+              wx:for="{{GAME_MODES}}" 
+              wx:key="key"
+              data-mode="{{item.key}}"
+              bindtap="selectMode">
+          <text class="mode-icon">{{item.icon}}</text>
+          <text class="mode-name">{{item.name}}</text>
+          <text class="mode-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成就面板 -->
+  <view class="achievements-panel modal-transition {{showAchievements ? 'show' : ''}}" wx:if="{{showAchievements}}">
+    <view class="achievements-content">
+      <view class="achievements-header">
+        <text class="achievements-title">成就系统</text>
+        <text class="total-points">总分: {{achievements.totalPoints}}</text>
+      </view>
+      
+      <view class="achievements-grid">
+        <view class="achievement-card {{item.unlocked ? 'unlocked' : ''}} hover-effect" 
+              wx:for="{{achievements.list}}" 
+              wx:key="id">
+          <text class="achievement-title">{{item.title}}</text>
+          <text class="achievement-desc">{{item.desc}}</text>
+          <text class="achievement-points">{{item.points}} 分</text>
+          <view class="achievement-progress">
+            <view class="progress-bar" style="width: {{item.progress}}%"></view>
+          </view>
+        </view>
+      </view>
+      
+      <button class="close-btn ripple" bindtap="hideAchievements">关闭</button>
+    </view>
+  </view>
+
+  <!-- 设置面板 -->
+  <view class="settings-panel modal-transition {{showSettings ? 'show' : ''}}" wx:if="{{showSettings}}">
+    <view class="settings-content">
+      <text class="settings-title">游戏设置</text>
+      
+      <!-- 音频设置 -->
+      <view class="settings-section">
+        <text class="section-title">音频设置</text>
+        <view class="setting-item">
+          <text class="setting-label">背景音乐</text>
+          <slider class="custom-slider" 
+                  min="0" 
+                  max="100" 
+                  value="{{bgmVolume * 100}}"
+                  bindchange="setBgmVolume"/>
+        </view>
+        <view class="setting-item">
+          <text class="setting-label">音效音量</text>
+          <slider class="custom-slider" 
+                  min="0" 
+                  max="100" 
+                  value="{{sfxVolume * 100}}"
+                  bindchange="setSfxVolume"/>
+        </view>
+      </view>
+      
+      <!-- 游戏设置 -->
+      <view class="settings-section">
+        <text class="section-title">游戏设置</text>
+        <view class="setting-item">
+          <text class="setting-label">显示网格</text>
+          <switch class="switch-wrapper" 
+                  checked="{{settings.showGrid}}"
+                  bindchange="toggleGrid"/>
+        </view>
+        <view class="setting-item">
+          <text class="setting-label">显示预览</text>
+          <switch class="switch-wrapper" 
+                  checked="{{settings.showGhost}}"
+                  bindchange="toggleGhost"/>
+        </view>
+        <view class="setting-item">
+          <text class="setting-label">操作灵敏度</text>
+          <slider class="custom-slider" 
+                  min="1" 
+                  max="100" 
+                  value="{{settings.sensitivity}}"
+                  bindchange="setSensitivity"/>
+        </view>
+      </view>
+      
+      <!-- 数据管理 -->
+      <view class="settings-section">
+        <text class="section-title">数据管理</text>
+        <button class="settings-btn primary ripple" bindtap="exportGameData">导出游戏数据</button>
+        <button class="settings-btn primary ripple" bindtap="importGameData">导入游戏数据</button>
+        <button class="settings-btn danger ripple" bindtap="resetGameData">重置游戏数据</button>
+      </view>
+      
+      <button class="close-btn ripple" bindtap="hideSettings">关闭</button>
+    </view>
+  </view>
+
+  <!-- 主题选择器 -->
+  <view class="theme-selector modal-transition {{showThemeSelector ? 'show' : ''}}" wx:if="{{showThemeSelector}}">
+    <view class="theme-content">
+      <text class="theme-title">选择主题</text>
+      <view class="theme-list">
+        <view class="theme-item {{currentTheme === theme.key ? 'active' : ''}} hover-effect"
+              wx:for="{{THEMES}}" 
+              wx:key="key"
+              wx:for-item="theme"
+              data-theme="{{theme.key}}"
+              bindtap="selectTheme">
+          <view class="theme-preview" style="background: {{theme.background}}">
+            <view class="preview-block" 
+                  wx:for="{{theme.previewBlocks}}" 
+                  wx:key="index"
+                  style="background: {{item}}">
+            </view>
+          </view>
+          <text class="theme-name">{{theme.name}}</text>
+        </view>
+      </view>
+      <button class="settings-btn primary ripple" bindtap="customizeTheme">自定义主题</button>
+      <button class="close-btn ripple" bindtap="hideThemeSelector">关闭</button>
+    </view>
+  </view>
+
+  <!-- 排行榜面板 -->
+  <view class="rank-panel modal-transition {{showRankPanel ? 'show' : ''}}" wx:if="{{showRankPanel}}">
+    <view class="rank-content">
+      <text class="rank-title">排行榜</text>
+      
+      <!-- 排行榜类型选择 -->
+      <view class="rank-tabs">
+        <view class="rank-tab {{rankType === 'score' ? 'active' : ''}} hover-effect"
+              bindtap="switchRankType" data-type="score">
+          <text>最高分</text>
+        </view>
+        <view class="rank-tab {{rankType === 'lines' ? 'active' : ''}} hover-effect"
+              bindtap="switchRankType" data-type="lines">
+          <text>消除行数</text>
+        </view>
+        <view class="rank-tab {{rankType === 'time' ? 'active' : ''}} hover-effect"
+              bindtap="switchRankType" data-type="time">
+          <text>游戏时长</text>
+        </view>
+      </view>
+      
+      <!-- 排行榜列表 -->
+      <scroll-view class="rank-list" scroll-y>
+        <view class="rank-item {{index < 3 ? 'top-' + (index + 1) : ''}}"
+              wx:for="{{rankList}}" 
+              wx:key="id">
+          <text class="rank-number">{{index + 1}}</text>
+          <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <text class="rank-name">{{item.nickname}}</text>
+          <text class="rank-value">{{formatRankValue(item.value, rankType)}}</text>
+          <text class="rank-date">{{formatDate(item.date)}}</text>
+        </view>
+      </scroll-view>
+      
+      <button class="close-btn ripple" bindtap="hideRankPanel">关闭</button>
+    </view>
+  </view>
+
+  <!-- 数据分析面板 -->
+  <view class="analytics-panel modal-transition {{showAnalytics ? 'show' : ''}}" wx:if="{{showAnalytics}}">
+    <view class="analytics-content">
+      <text class="analytics-title">数据分析</text>
+      
+      <!-- 基础统计卡片 -->
+      <view class="stats-grid">
+        <view class="stat-card hover-effect">
+          <text class="stat-value">{{statistics.totalGames}}</text>
+          <text class="stat-label">总游戏局数</text>
+        </view>
+        <view class="stat-card hover-effect">
+          <text class="stat-value">{{statistics.averageScore}}</text>
+          <text class="stat-label">平均分数</text>
+        </view>
+        <view class="stat-card hover-effect">
+          <text class="stat-value">{{statistics.maxCombo}}</text>
+          <text class="stat-label">最高连击</text>
+        </view>
+        <view class="stat-card hover-effect">
+          <text class="stat-value">{{formatTime(statistics.totalPlayTime)}}</text>
+          <text class="stat-label">总游戏时长</text>
+        </view>
+      </view>
+      
+      <!-- 趋势图表 -->
+      <view class="chart-section">
+        <view class="chart-controls">
+          <view class="chart-type-btn {{chartType === 'score' ? 'active' : ''}} hover-effect"
+                bindtap="switchChartType" data-type="score">
+            <text>分数趋势</text>
+          </view>
+          <view class="chart-type-btn {{chartType === 'lines' ? 'active' : ''}} hover-effect"
+                bindtap="switchChartType" data-type="lines">
+            <text>消行趋势</text>
+          </view>
+        </view>
+        
+        <!-- 时间范围选择 -->
+        <view class="time-range-selector">
+          <view class="time-range-btn {{timeRange === 'day' ? 'active' : ''}} hover-effect"
+                bindtap="switchTimeRange" data-range="day">
+            <text>24小时</text>
+          </view>
+          <view class="time-range-btn {{timeRange === 'week' ? 'active' : ''}} hover-effect"
+                bindtap="switchTimeRange" data-range="week">
+            <text>7天</text>
+          </view>
+          <view class="time-range-btn {{timeRange === 'month' ? 'active' : ''}} hover-effect"
+                bindtap="switchTimeRange" data-range="month">
+            <text>30天</text>
+          </view>
+        </view>
+        
+        <!-- 图表容器 -->
+        <view class="chart-container">
+          <canvas type="2d" 
+                  id="analysisChart"
+                  canvas-id="analysisChart"
+                  class="chart-canvas">
+          </canvas>
+        </view>
+      </view>
+      
+      <!-- 方块使用统计 -->
+      <view class="piece-stats-section">
+        <text class="section-title">方块使用统计</text>
+        <view class="piece-stats-grid">
+          <view class="piece-stat-card hover-effect"
+                wx:for="{{pieceStats}}" 
+                wx:key="type">
+            <view class="piece-preview" style="background: {{item.color}}"></view>
+            <text class="piece-count">{{item.count}}次</text>
+            <text class="piece-percentage">{{item.percentage}}%</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 导出按钮 -->
+      <view class="export-buttons">
+        <button class="export-btn image ripple" bindtap="exportChartImage">导出图表</button>
+        <button class="export-btn csv ripple" bindtap="exportDataCSV">导出数据</button>
+        <button class="export-btn json ripple" bindtap="exportDataJSON">导出JSON</button>
+      </view>
+      
+      <button class="close-btn ripple" bindtap="hideAnalytics">关闭</button>
+    </view>
+  </view>
+
+  <!-- 手势教程面板 -->
+  <view class="tutorial-panel modal-transition {{showTutorial ? 'show' : ''}}" wx:if="{{showTutorial}}">
+    <view class="tutorial-content glass">
+      <text class="tutorial-title">操作指南</text>
+      
+      <!-- 手势演示区域 -->
+      <view class="gesture-demos">
+        <view class="gesture-item">
+          <view class="gesture-animation swipe-horizontal"></view>
+          <text class="gesture-desc">左右滑动：移动方块</text>
+        </view>
+        
+        <view class="gesture-item">
+          <view class="gesture-animation tap"></view>
+          <text class="gesture-desc">点击：旋转方块</text>
+        </view>
+        
+        <view class="gesture-item">
+          <view class="gesture-animation swipe-down"></view>
+          <text class="gesture-desc">下滑：快速下落</text>
+        </view>
+        
+        <view class="gesture-item">
+          <view class="gesture-animation hold"></view>
+          <text class="gesture-desc">长按：暂存方块</text>
+        </view>
+      </view>
+      
+      <!-- 高级技巧 -->
+      <view class="tips-section">
+        <text class="tips-title">游戏技巧</text>
+        <view class="tips-list">
+          <view class="tip-item">
+            <text class="tip-icon">💡</text>
+            <text class="tip-text">T-Spin：T形方块特殊旋转可得额外分数</text>
+          </view>
+          <view class="tip-item">
+            <text class="tip-icon">🎯</text>
+            <text class="tip-text">Back-to-Back：连续完成特殊消除可获得连击加成</text>
+          </view>
+          <view class="tip-item">
+            <text class="tip-icon">⚡</text>
+            <text class="tip-text">Perfect Clear：完全清空场地可获得巨额分数</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 按键说明 -->
+      <view class="keyboard-tips" wx:if="{{isKeyboardMode}}">
+        <text class="keyboard-title">键盘控制</text>
+        <view class="key-list">
+          <view class="key-item">
+            <view class="key">←</view>
+            <text class="key-desc">左移</text>
+          </view>
+          <view class="key-item">
+            <view class="key">→</view>
+            <text class="key-desc">右移</text>
+          </view>
+          <view class="key-item">
+            <view class="key">↑</view>
+            <text class="key-desc">旋转</text>
+          </view>
+          <view class="key-item">
+            <view class="key">↓</view>
+            <text class="key-desc">加速下落</text>
+          </view>
+          <view class="key-item">
+            <view class="key">空格</view>
+            <text class="key-desc">硬降</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 不再显示选项 -->
+      <view class="tutorial-footer">
+        <checkbox-group bindchange="toggleTutorialShow">
+          <checkbox value="dontShow" color="#2ED573">不再显示</checkbox>
+        </checkbox-group>
+        <button class="start-btn gradient-primary ripple" bindtap="hideTutorial">开始游戏</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 帮助面板 -->
+  <view class="help-panel modal-transition {{showHelp ? 'show' : ''}}" wx:if="{{showHelp}}">
+    <view class="help-content">
+      <text class="help-title">游戏帮助</text>
+      
+      <!-- 帮助分类 -->
+      <view class="help-tabs">
+        <view class="help-tab {{helpTab === 'basic' ? 'active' : ''}} hover-effect"
+              bindtap="switchHelpTab" data-tab="basic">
+          <text>基础玩法</text>
+        </view>
+        <view class="help-tab {{helpTab === 'advanced' ? 'active' : ''}} hover-effect"
+              bindtap="switchHelpTab" data-tab="advanced">
+          <text>高级技巧</text>
+        </view>
+        <view class="help-tab {{helpTab === 'modes' ? 'active' : ''}} hover-effect"
+              bindtap="switchHelpTab" data-tab="modes">
+          <text>游戏模式</text>
+        </view>
+        <view class="help-tab {{helpTab === 'scoring' ? 'active' : ''}} hover-effect"
+              bindtap="switchHelpTab" data-tab="scoring">
+          <text>计分规则</text>
+        </view>
+      </view>
+      
+      <!-- 帮助内容 -->
+      <scroll-view class="help-content-scroll" scroll-y>
+        <view class="help-section" wx:if="{{helpTab === 'basic'}}">
+          <view class="help-item">
+            <text class="help-subtitle">游戏目标</text>
+            <text class="help-text">通过移动和旋转下落的方块，使其填满横行并消除，获取高分。当方块堆积到顶部时游戏结束。</text>
+          </view>
+          <view class="help-item">
+            <text class="help-subtitle">基本操作</text>
+            <text class="help-text">• 左右滑动：移动方块\n• 点击屏幕：旋转方块\n• 下滑：加速下落\n• 长按：暂存方块</text>
+          </view>
+        </view>
+        
+        <view class="help-section" wx:if="{{helpTab === 'advanced'}}">
+          <view class="help-item">
+            <text class="help-subtitle">T-Spin技巧</text>
+            <text class="help-text">T形方块在特定位置旋转可以获得额外分数。成功的T-Spin需要T形方块的三个角被其他方块或墙壁阻挡。</text>
+          </view>
+          <view class="help-item">
+            <text class="help-subtitle">Perfect Clear</text>
+            <text class="help-text">完全清空游戏场地可以获得大量奖励分数。尝试在开局时就规划Perfect Clear的可能性。</text>
+          </view>
+        </view>
+        
+        <!-- 其他帮助内容... -->
+      </scroll-view>
+      
+      <button class="close-btn ripple" bindtap="hideHelp">关闭</button>
+    </view>
+  </view>
+
+  <!-- 联机对战面板 -->
+  <view class="battle-ui modal-transition {{showBattleUI ? 'show' : ''}}" wx:if="{{showBattleUI}}">
+    <view class="battle-header">
+      <text class="battle-title">联机对战</text>
+      <text class="room-id">房间号: {{room.id}}</text>
+    </view>
+    
+    <!-- 对手游戏画面 -->
+    <view class="opponent-view">
+      <view class="opponent-board" 
+            wx:for="{{room.players}}" 
+            wx:key="id"
+            wx:if="{{item.id !== currentPlayer.id}}">
+        <canvas type="2d"
+                id="opponent-{{item.id}}"
+                canvas-id="opponent-{{item.id}}"
+                class="opponent-canvas">
+        </canvas>
+        <view class="opponent-info">
+          <image class="opponent-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <text class="opponent-name">{{item.nickname}}</text>
+          <text class="opponent-score">{{item.score}}</text>
+        </view>
+        <!-- 垃圾行警告 -->
+        <view class="garbage-warning {{item.garbageWarning ? 'show' : ''}}">
+          <text class="warning-text">{{item.garbageLines}} 行垃圾即将到来!</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 对战状态 -->
+    <view class="battle-status">
+      <view class="player-list">
+        <view class="player-item {{item.ready ? 'ready' : ''}}"
+              wx:for="{{room.players}}"
+              wx:key="id">
+          <image class="player-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <text class="player-name">{{item.nickname}}</text>
+          <text class="ready-status">{{item.ready ? '已准备' : '未准备'}}</text>
+        </view>
+      </view>
+      <button class="ready-btn {{isReady ? 'cancel' : ''}} ripple"
+              bindtap="toggleReady">
+        {{isReady ? '取消准备' : '准备'}}
+      </button>
+    </view>
+    
+    <!-- 倒计时 -->
+    <view class="countdown {{showCountdown ? 'show' : ''}}">
+      <text class="countdown-number">{{countdownNumber}}</text>
+    </view>
+    
+    <!-- 聊天区域 -->
+    <view class="chat-area">
+      <scroll-view class="chat-messages" scroll-y scroll-into-view="msg-{{messages.length - 1}}">
+        <view class="chat-message" 
+              wx:for="{{room.chat}}" 
+              wx:key="id"
+              id="msg-{{index}}">
+          <text class="message-sender">{{item.sender}}</text>
+          <text class="message-content">{{item.content}}</text>
+        </view>
+      </scroll-view>
+      
+      <view class="chat-input">
+        <input type="text" 
+               placeholder="发送消息..." 
+               value="{{chatInput}}"
+               bindinput="onChatInput"
+               bindconfirm="sendChatMessage"/>
+        <button class="send-btn ripple" bindtap="sendChatMessage">发送</button>
+      </view>
+      
+      <!-- 快捷消息 -->
+      <view class="quick-messages {{showQuickMessages ? 'show' : ''}}">
+        <view class="quick-message hover-effect"
+              wx:for="{{quickMessages}}"
+              wx:key="index"
+              bindtap="sendQuickMessage"
+              data-message="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+    
+    <!-- 对战结果 -->
+    <view class="battle-result modal-transition {{showBattleResult ? 'show' : ''}}" wx:if="{{showBattleResult}}">
+      <view class="result-content">
+        <text class="result-title">对战结束</text>
+        
+        <!-- 排名列表 -->
+        <view class="rank-list">
+          <view class="rank-item {{index === 0 ? 'winner' : ''}}"
+                wx:for="{{battleResults}}"
+                wx:key="id">
+            <text class="rank-number">{{index + 1}}</text>
+            <image class="player-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+            <text class="player-name">{{item.nickname}}</text>
+            <text class="player-score">{{item.score}}</text>
+            <text class="player-lines">消除 {{item.lines}} 行</text>
+          </view>
+        </view>
+        
+        <!-- 操作按钮 -->
+        <view class="result-buttons">
+          <button class="rematch-btn ripple" bindtap="requestRematch">再来一局</button>
+          <button class="leave-btn ripple" bindtap="leaveBattle">退出房间</button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 重新匹配倒计时 -->
+    <view class="rematch-timer {{showRematchTimer ? 'show' : ''}}">
+      <text class="timer-text">{{rematchTimeout}}秒后重新匹配...</text>
+      <button class="cancel-btn ripple" bindtap="cancelRematch">取消</button>
+    </view>
+  </view>
+</view> 

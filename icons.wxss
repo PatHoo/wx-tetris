@@ -1,0 +1,9 @@
+/* 所有图标使用统一的设计风格 */
+.icon {
+  width: 64px;
+  height: 64px;
+  /* 使用描边风格，确保在浅色和深色背景都清晰可见 */
+  stroke: #333;
+  stroke-width: 2;
+  fill: none;
+} 
